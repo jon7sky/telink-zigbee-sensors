@@ -109,6 +109,8 @@
 #define BOARD_KCTW1Z				61 // Tuya KCTW1Z / Moes ZSS-KB-TH, ZigBee LCD, SHT40, CR2032
 //#define BOARD_MJWSD07MMC			62 // Xiaomi Bloetooth Temp & Humidity & CO2 BLE Sensor
 //#define DEVICE_NEXT			63 // ?
+// Fork-local boards: numbered from 200 to stay clear of the upstream sequence
+#define BOARD_ZG_IR01				200 // ZigBee only, HOBEIAN ZG-IR01 battery IR blaster + T&H (SHT40), 2xAAA
 
 /* Board define */
 #ifndef BOARD

@@ -8,6 +8,8 @@ Based on an example from  [Telink's Zigbee SDK](http://wiki.telink-semi.cn/wiki/
 
 * [Full list of supported devices](https://github.com/pvvx/pvvx.github.io/blob/master/README.md)
 
+* Added in this fork: [HOBEIAN ZG-IR01 battery IR blaster](ZG-IR01.md)
+
 Additional alternative firmware options for some devices with TLSR825x can be found at [github.com/slacky1965](https://github.com/slacky1965?tab=repositories), [doctor64/tuyaZigbee](https://github.com/doctor64/tuyaZigbee)
 
 Please direct questions regarding use and configuration in [ZHA](https://www.home-assistant.io/integrations/zha/), [Zigbee2MQTT](https://www.zigbee2mqtt.io/), [Home Assistant](https://www.home-assistant.io/) to the appropriate resources.

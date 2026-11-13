@@ -229,6 +229,7 @@ class CustomUserInterfaceCluster(CustomCluster, UserInterface):
 	.applies_to("ZBeacon", "TH01-z")
 	.applies_to("ZBeacon", "TH01-2-z")
 	.applies_to("Wing","TS0201-z")
+	.applies_to("HOBEIAN", "ZG-IR01-z")
 	.removes(CustomUserInterfaceCluster.cluster_id, cluster_type=ClusterType.Client)
 	.adds(CustomUserInterfaceCluster)
 	.number(

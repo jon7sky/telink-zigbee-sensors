@@ -6,6 +6,7 @@
 #include "zcl_thermostat_ui_cfg.h"
 #include "app_main.h"
 #include "app_ui.h"
+#include "ir_blaster.h"
 #include "reporting.h"
 #ifdef ZCL_ON_OFF
 #include "app_onoff.h"
@@ -221,6 +222,12 @@ void sensorDevice_zclWriteReqCmd(u16 clusterId, zclWriteCmd_t *pWriteReqCmd)
 		zcl_dhumConfig_save(0);
 	} else
 #endif // ZCL_DIHUMIDIFICATION_CONTROL
+#if USE_IR_BLASTER
+	if(clusterId == ZCL_CLUSTER_IR_BLASTER) {
+		for(int i = 0; i < numAttr; i++)
+			ir_zcl_write(attr[i].attrID, attr[i].attrData);
+	} else
+#endif // USE_IR_BLASTER
 #if defined(ZCL_ILLUMINANCE_LEVEL_SENSING) && defined(ZCL_OCCUPANCY_SENSING)
 	if(clusterId == ZCL_CLUSTER_MS_OCCUPANCY_SENSING) {
 		zcl_occupanceConfig_save(0);

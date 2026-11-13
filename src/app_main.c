@@ -26,6 +26,7 @@
 #include "lcd.h"
 #include "reporting.h"
 #include "ext_ota.h"
+#include "ir_blaster.h"
 //#include "zcl_thermostat_ui_cfg.h"
 #if USE_BLE
 #include "ble_cfg.h"
@@ -371,6 +372,10 @@ s32 sensors_timer_cb(void *arg) {
 /**********************************************************************
  * FUNCTIONS
  */
+#ifdef PAIRING_FAST_BLINKS
+static u16 pairing_blinks; // fast LED flashes since the device was last joined
+#endif
+
 void app_task(void)
 {
 	u16 rep_uptime_sec;
@@ -400,6 +405,9 @@ void app_task(void)
 			if(!g_sensorAppCtx.timerLedEvt)
 				light_off();
 #endif // USE_DISPLAY
+#ifdef PAIRING_FAST_BLINKS
+			pairing_blinks = 0;
+#endif
 #if USE_RETRY_ONOFF
 			taskRetryOnOff();
 #endif
@@ -427,8 +435,16 @@ void app_task(void)
 				light_blink_start(1, 50, 10000);
 #endif // USE_BLINK_LED
 #else // !USE_DISPLAY
-			if(!g_sensorAppCtx.timerLedEvt)
+			if(!g_sensorAppCtx.timerLedEvt) {
+#ifdef PAIRING_FAST_BLINKS
+				// pairing mode: flash twice a second for a while, then save the battery
+				if(pairing_blinks < PAIRING_FAST_BLINKS) {
+					pairing_blinks++;
+					light_blink_start(1, 100, 400);
+				} else
+#endif
 				light_blink_start(1, 50, 10000);
+			}
 			//gpio_write(GPIO_LED, LED_ON); // - не включать PIN_PULLUP/PULLDOWN !
 #endif // USE_DISPLAY
 		}
@@ -437,6 +453,11 @@ void app_task(void)
 		task_lcd();
 #endif
 #if !USE_BLE
+#if USE_IR_BLASTER
+		if(ir_task()) {
+			// IR learn or send in progress: stay awake
+		} else
+#endif // USE_IR_BLASTER
 #if	USE_SENSOR_TH
 		if(sensor_ht.read_callback) {
 			sensor_ht.read_callback();
@@ -545,6 +566,9 @@ void user_app_init(void)
 	rc2417_init();
 #endif
 	init_sensor();
+#if USE_IR_BLASTER
+	ir_init();
+#endif
 
 #if	USE_DISPLAY
 	init_lcd();

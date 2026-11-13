@@ -9,6 +9,7 @@
 #include "zcl_dehumidification_control.h"
 #endif
 #include "app_main.h"
+#include "ir_blaster.h"
 #include "lcd.h"
 #if USE_BLE
 #include "zigbee_ble_switch.h"
@@ -110,6 +111,9 @@ const u16 sensorDevice_inClusterList[] =
 #endif
 #ifdef ZCL_IAS_ZONE
 	ZCL_CLUSTER_SS_IAS_ZONE,
+#endif
+#if USE_IR_BLASTER
+	ZCL_CLUSTER_IR_BLASTER,
 #endif
 };
 
@@ -654,6 +658,9 @@ const zcl_specClusterInfo_t g_sensorDeviceClusterList[] =
 #endif
 #ifdef ZCL_IAS_ZONE
 	{ZCL_CLUSTER_SS_IAS_ZONE,		MANUFACTURER_CODE_NONE, ZCL_IASZONE_ATTR_NUM,	iasZone_attrTbl,	zcl_iasZone_register,	sensorDevice_iasZoneCb},
+#endif
+#if USE_IR_BLASTER
+	{ZCL_CLUSTER_IR_BLASTER,		MANUFACTURER_CODE_NONE, ZCL_IR_ATTR_NUM,		ir_attrTbl,			zcl_ir_blaster_register,	NULL},
 #endif
 };
 

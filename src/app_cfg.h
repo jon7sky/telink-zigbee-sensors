@@ -157,6 +157,8 @@
 #include "board_th03_zbps.h"
 #elif BOARD == BOARD_KCTW1Z
 #include "board_kctw1z.h"
+#elif BOARD == BOARD_ZG_IR01
+#include "board_zg_ir01.h"
 #else
 #error "Define BOARD!"
 #endif
@@ -167,6 +169,10 @@
 
 #ifndef USE_TRIGGER
 #define USE_TRIGGER				0 // develop
+#endif
+
+#ifndef USE_IR_BLASTER
+#define USE_IR_BLASTER			0 // IR learn/send, see ir_blaster.c
 #endif
 
 /**********************************************************************
@@ -275,7 +281,8 @@ typedef enum{
 	NV_ITEM_APP_ILLUMI_CFG,
 	NV_ITEM_APP_TRIGGER_UI_CFG,
 	NV_ITEM_APP_ONOFF_CFG,
-	NV_ITEM_APP_DHUM_CFG
+	NV_ITEM_APP_DHUM_CFG,
+	NV_ITEM_APP_IR_CFG
 } nv_item_app_t;
 
 /**********************************************************************

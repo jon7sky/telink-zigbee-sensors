@@ -18,6 +18,7 @@
 #include "app_main.h"
 #include "app_ui.h"
 #include "lcd.h"
+#include "ir_blaster.h"
 #include "reporting.h"
 
 #ifdef ZCL_OTA
@@ -305,6 +306,11 @@ void app_pollRateApply(void) {
 		rate = 1000;
 	else
 		rate = g_zcl_pollCtrlAttrs.longPollInterval * POLL_RATE_QUARTERSECONDS;
+#if USE_IR_BLASTER
+	// commands must reach the device quickly: poll faster than the sensor interval
+	if(rate > ir_poll_rate_ms())
+		rate = ir_poll_rate_ms();
+#endif
 	zb_setPollRate(rate);
 }
 
