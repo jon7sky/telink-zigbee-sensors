@@ -13,7 +13,8 @@ about 580 timings) could not be learned or sent.
 
 TLSR8258 (marked `Z2`), 1M flash, 2 x AAA. Pin map in
 [src/board_zg_ir01.h](../src/board_zg_ir01.h). Test pads, counting from the square
-one: 3 = SWS, 4 = GND, 5 = +3V.
+one: 1 = PB7 (UART RX), 2 = PB1 (UART TX), 3 = SWS, 4 = GND, 5 = +3V. The stock
+firmware uses the UART at 115200; this firmware does not use it.
 
 ## IR codes
 

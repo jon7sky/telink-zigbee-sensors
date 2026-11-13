@@ -30,8 +30,10 @@ GPIO_PC1 - IR LED driver, PWM0 38 kHz, active high
 GPIO_PC2 - IR receiver output
 GPIO_PC4 - IR receiver power, active high
 
-Test pads (pad 1 is the square one): 3 - SWS, 4 - GND, 5 - +3V.
-Pads 1 and 2 are not identified yet (probably TX and RX).
+Test pads (pad 1 is the square one):
+1 - PB7 (RX), 2 - PB1 (TX), 3 - SWS, 4 - GND, 5 - +3V.
+Pads 1 and 2 were checked with a USB serial adapter: pulses on PB1 arrive
+at the adapter's RX, and the adapter's TX drives PB7.
 
 The IR pins are parked in a safe state here and driven by ir_blaster.c.
 */
