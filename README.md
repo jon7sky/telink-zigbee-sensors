@@ -8,7 +8,9 @@ Based on an example from  [Telink's Zigbee SDK](http://wiki.telink-semi.cn/wiki/
 
 * [Full list of supported devices](https://github.com/pvvx/pvvx.github.io/blob/master/README.md)
 
-* Added in this fork: [HOBEIAN ZG-IR01 battery IR blaster](ZG-IR01.md)
+* Added in this fork: [HOBEIAN ZG-IR01 battery IR blaster](docs/zg-ir01.md)
+
+* [A page for each device](docs/README.md)
 
 Additional alternative firmware options for some devices with TLSR825x can be found at [github.com/slacky1965](https://github.com/slacky1965?tab=repositories), [doctor64/tuyaZigbee](https://github.com/doctor64/tuyaZigbee)
 

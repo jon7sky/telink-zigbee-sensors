@@ -12,7 +12,7 @@ about 580 timings) could not be learned or sent.
 ## Hardware
 
 TLSR8258 (marked `Z2`), 1M flash, 2 x AAA. Pin map in
-[src/board_zg_ir01.h](src/board_zg_ir01.h). Test pads, counting from the square
+[src/board_zg_ir01.h](../src/board_zg_ir01.h). Test pads, counting from the square
 one: 3 = SWS, 4 = GND, 5 = +3V.
 
 ## IR codes
@@ -27,7 +27,7 @@ and replayed on a 38 kHz carrier. Nothing is decoded.
   the radio. The hub only names a slot.
 - **64 slots. This is a choice, not the limit:** the free flash
   (`0x80000`..`0xFBFFF`) has room for 124. To raise it, change `IR_SLOT_COUNT`
-  in [src/ir_blaster.h](src/ir_blaster.h); above 64 the `slots used` attribute
+  in [src/ir_blaster.h](../src/ir_blaster.h); above 64 the `slots used` attribute
   must become wider than a 64-bit bitmap.
 - Each slot also stores the code's **name**, up to 64 bytes of any value (the
   hub sends UTF-8; spaces are fine), so the hub can rebuild its list of names
