@@ -42,6 +42,7 @@ $(OUT_PATH)$(SRC_DIR)/sensor_xbr818.o \
 $(OUT_PATH)$(SRC_DIR)/sensor_rc2417.o \
 $(OUT_PATH)$(SRC_DIR)/sensors_zg223z.o \
 $(OUT_PATH)$(SRC_DIR)/ir_blaster.o \
+$(OUT_PATH)$(SRC_DIR)/ir_store.o \
 $(OUT_PATH)$(SRC_DIR)/zb_appCb.o \
 $(OUT_PATH)$(SRC_DIR)/zcl_appCb.o \
 $(OUT_PATH)$(SRC_DIR)/reporting.o \

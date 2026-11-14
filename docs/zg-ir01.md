@@ -24,55 +24,69 @@ and replayed on a 38 kHz carrier. Nothing is decoded.
 - Up to 2000 timings per code, 4 us resolution.
 - Capture ends after 120 ms of silence, so the gap between repeated frames is
   recorded as part of the code.
-- Codes are stored on the device, one 4K flash sector per slot, and never cross
-  the radio. The hub only names a slot.
-- **64 slots. This is a choice, not the limit:** the free flash
-  (`0x80000`..`0xFBFFF`) has room for 124. To raise it, change `IR_SLOT_COUNT`
-  in [src/ir_blaster.h](../src/ir_blaster.h); above 64 the `slots used` attribute
-  must become wider than a 64-bit bitmap.
-- Each slot also stores the code's **name**, up to 64 bytes of any value (the
-  hub sends UTF-8; spaces are fine), so the hub can rebuild its list of names
-  after a re-pair. Slot layout: header (8 bytes), timings from `0x008`, name
-  length and name at `0xFB8`. A slot written before names existed has an
-  erased name area, which reads as "no name".
-- Slots survive a Zigbee reset and a factory reset. They need a 1M flash; on a
-  smaller one every command answers "no storage".
+- Codes are stored on the device **by name** and never cross the radio: the hub
+  sends a name, the device learns, sends or erases that code. The device holds
+  the only list of codes; the hub reads it with a list command.
+- A name is 1 to 64 bytes of any value except 0 (the hub sends UTF-8; spaces
+  are fine). Learning an existing name replaces its code, but only once the new
+  code has been captured, so a failed learn keeps the old one.
+- Storage ([src/ir_store.c](../src/ir_store.c)) is a log of codes in the free
+  upper half of the flash, `0x80000`..`0xFBFFF` (496 KB, 62 blocks of 8 KB).
+  Each entry holds a state byte, the name and value lengths, a CRC32, the name
+  and the timings, so a code takes 2 bytes per timing plus 8 bytes and its
+  name. An index in RAM maps each name to its entry, so looking up, sending,
+  counting and listing never scan the flash.
+- **Up to 256 codes**, the size of the RAM index (`IR_STORE_MAX_CODES`, 8 bytes
+  of RAM each). The flash holds 256 codes of up to about 970 timings on
+  average, so 256 TV keys or 256 Mitsubishi codes (583 timings) fit, but only
+  122 codes of the maximum 2000 timings. A code never spans two blocks.
+- A new or replaced code is appended; the old copy is then marked deleted.
+  When the free blocks run out, the block with the most deleted data has its
+  live codes copied into the spare block (one is always kept), then is erased.
+- If power is lost during a write, the code being written is ignored. If it is
+  lost after a new copy was written but before the old one was marked deleted,
+  the next start keeps the newer copy. A block whose erase was interrupted is
+  erased again at the next start. Tested with 16 debugger resets during
+  writes (every restart found every code intact); a real battery pull has not
+  been tested.
+- Start-up reads each entry's header and each live name, not the whole area
+  (about 15 ms). It erases any block that does not hold a valid store header,
+  so the first start on a device erases the whole area (about 7 s). Codes survive
+  a Zigbee reset and a factory reset. They need a 1M flash; on a smaller one
+  every command answers "no storage".
 
 ## Zigbee interface
 
-Cluster `0xFC49` on endpoint 1, no manufacturer code. Commands are attribute
-writes of a slot number.
-
-| Attribute | Type | Access | Meaning |
-|---|---|---|---|
-| `0x0000` learn | uint8 | RW | Write a slot to learn into it. `0x80` cancels. |
-| `0x0001` send | uint8 | RW | Write a slot to transmit it. |
-| `0x0002` erase | uint8 | RW | Write a slot to erase it. `0x80` erases all. |
-| `0x0003` result | uint32 | R, reported | `status \| slot << 8 \| timings << 16`, sent to the coordinator after every operation. |
-| `0x0004` slots used | bitmap64 | R | Bit n set: slot n holds a code. |
-| `0x0005` slot count | uint8 | R | 64 |
-| `0x0006` idle poll | uint8 | RW | Idle poll interval in 1/4 s, 1..40, saved. Default 4 (1 s). |
-
-Names travel in cluster commands rather than attributes, so the firmware can
-check their length against the frame (the stack copies string attributes
-without a length check). A name is `[length][bytes]`, at most 64 bytes.
+Cluster `0xFC49` on endpoint 1, no manufacturer code. Everything is done with
+cluster commands, so the firmware can check every name's length against the
+frame. A name is `[length][bytes]`; numbers are little-endian.
 
 | Command | Direction | Payload |
 |---|---|---|
-| `0x00` learn | hub to device | `[slot][name]`: learn into the slot and store the name with it |
-| `0x01` rename | hub to device | `[slot][name]`: change the stored name (rewrites the slot) |
-| `0x02` query | hub to device | `[slot]`, or `0x80` for every slot that holds a code |
-| `0x00` slot info | device to hub | `[slot][timings, uint16][name]`, timings 0 = empty slot |
+| `0x00` learn | hub to device | `[name]`: learn a code and store it under the name |
+| `0x01` rename | hub to device | `[old name][new name]` |
+| `0x02` list | hub to device | none: report every stored code |
+| `0x03` send | hub to device | `[name]` |
+| `0x04` erase | hub to device | `[name]` |
+| `0x05` erase all | hub to device | none |
+| `0x06` cancel | hub to device | none: end a learn in progress |
+| `0x00` code info | device to hub | `[timings, uint16][name]`; timings 0 with an empty name ends the list |
+| `0x01` result | device to hub | `[status][timings, uint16][name]`, after every operation |
 
-The device sends slot info for each queried slot, one message at a time, and
-after every successful learn or rename.
+The list is sent one code info at a time. If the store changes while a list is
+being sent, the device starts the list again, so a name can arrive twice.
 
 Result status: 1 learning, 2 learned, 3 learn timeout (15 s), 4 code too long,
-5 sent, 6 slot empty, 7 bad slot, 8 erased, 9 flash error, 10 no storage,
-11 cancelled.
+5 sent, 6 not found, 8 erased (empty name: all codes), 9 flash error,
+10 no storage, 11 cancelled, 12 store full, 13 name exists (rename target is
+taken), 14 renamed (name = the new name). 7 is no longer used.
 
-During a learn the LED blinks and the device stays awake. A failed learn leaves
-the slot's previous code in place.
+| Attribute | Type | Access | Meaning |
+|---|---|---|---|
+| `0x0006` idle poll | uint8 | RW | Idle poll interval in 1/4 s, 1..40, saved. Default 4 (1 s). |
+| `0x0007` code count | uint16 | R | Number of stored codes. |
+
+During a learn the LED blinks and the device stays awake.
 
 ## Battery life and response time
 
