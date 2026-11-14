@@ -1,5 +1,7 @@
 # HOBEIAN ZG-IR01 battery IR blaster
 
+<img src="img/zg-ir01.png" alt="ZG-IR01 IR blaster" width="140">
+
 Board `BOARD_ZG_IR01` (fork-local, not in upstream ZigbeeTLc): a battery Zigbee
 IR blaster with a temperature / humidity sensor, sold as `_TZE200_33rdmvgw` /
 `ZG-IR01`. With this firmware it joins as `HOBEIAN` / `ZG-IR01-z`.
@@ -15,6 +17,12 @@ TLSR8258 (marked `Z2`), 1M flash, 2 x AAA. Pin map in
 [src/board_zg_ir01.h](../src/board_zg_ir01.h). Test pads, counting from the square
 one: 1 = PB7 (UART RX), 2 = PB1 (UART TX), 3 = SWS, 4 = GND, 5 = +3V. The stock
 firmware uses the UART at 115200; this firmware does not use it.
+
+![ZG-IR01 board with the five test pads labelled](img/zg-ir01-board.jpg)
+
+To flash, connect a Telink SWire programmer to pads 3 (SWS), 4 (GND) and
+5 (+3V), with the batteries out. For the UART, connect a 3.3 V USB serial
+adapter's RX to pad 2 and GND to pad 4.
 
 ## IR codes
 
